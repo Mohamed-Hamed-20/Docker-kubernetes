@@ -1,0 +1,163 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-env
+data:
+  PORT: "your_port"
+  DB_URL: "your_database_url"
+  salt_Round: "your_salt_round"
+  email: "your_email"
+  password: "your_password"
+  ACCESS_TOKEN_SECRET: "your_access_token_secret"
+  REFRESH_TOKEN_SECRET: "your_refresh_token_secret"
+  ACCESS_TOKEN_startwith: "Bearer "
+  accessExpireIn: "your_access_expiry"
+  REFRESH_ExpireIn: "your_refresh_expiry"
+  DEFAULT_SIGNATURE: "your_default_signature"
+  tokenKey: "your_token_key"
+  Token_Start: "your_token_prefix"
+  folder_name: "your_folder_name"
+  NODE_ENV: "your_environment"
+  api_secret: "your_api_secret"
+  cloud_name: "your_cloud_name"
+  api_key: "your_api_key"
+  STRIPE_KEY: "your_stripe_key"
+  Bucket_name: "your_bucket_name"
+  Bucket_Region: "your_bucket_region"
+  AWS_Access_key: "your_aws_access_key"
+  AWS_key_secret: "your_aws_secret_key"
+  ProjectOnGithub: "your_project_github_link"
+  profileImg: "your_profile_image_url"
+  Apidoc: "your_api_documentation_link"
+  LiveServer: "your_live_server_link"
+  ProjectVideo: "your_project_video_link"
+  useremail: "your_user_email"
+  GitHub: "your_github_profile"
+  linkedIn: "your_linkedin_profile"
+  location: "your_location"
+  Myname: "your_name"
+  REDIS_HOST: "your_redis_host"
+  REDIS_PORT: "your_redis_port"
+  REDIS_PASSWORD: "your_redis_password"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: kasem1196/ecommerce:v1.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - configMapRef:
+            name: backend-env
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 5000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: kasem1196/redis:v1.1
+        ports:
+        - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+spec:
+  selector:
+    app: redis
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: 6379
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: kasem1196/mongo:v1.1
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-storage
+          mountPath: /data/db
+      volumes:
+      - name: mongo-storage
+        persistentVolumeClaim:
+          claimName: mongo-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service
+spec:
+  selector:
+    app: mongo
+  ports:
+  - protocol: TCP
+    port: 27017
+    targetPort: 27017
+  type: ClusterIP

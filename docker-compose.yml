@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backendc
+    env_file:
+      - ./backend/config/config.env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules 
+    ports:
+      - "5000:5000"
+    networks:
+      - mynetwork
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  redis:
+    image: redis:latest
+    container_name: redisc
+    ports:
+      - "6379:6379"
+    networks:
+      - mynetwork
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    volumes:
+      - ./database/mongo_data:/data/db
+    ports:
+      - "27018:27017"
+    networks:
+      - mynetwork
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+networks:
+  mynetwork:
+    driver: bridge
