@@ -147,16 +147,17 @@ http://127.0.0.1:5000
 ## Screenshots
 
 ### Running Backend Pod  
-![Backend Pod Running](./images/backend run terminal.jpeg)  
+![Backend Pod Running](./images/backend run terminal.jpeg)
 
 ### MongoDB Deployment  
-![MongoDB Deployment](./images/monog db running mongo campass.jpeg)  
+![MongoDB Deployment](./images/monog db running mongo campass.jpeg)
 
 ### live project Deployment  
-![live Deployment](./images/sample project run browser.jpeg)  
+![live Deployment](./images/sample project run browser.jpeg)
 
 ### Port Forwarding  
-![Port Forwarding](./images/mongo run terminal.jpeg)  
+![Port Forwarding](./images/mongo run terminal.jpeg)
+
 
 ## Project Links
 
